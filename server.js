@@ -61,12 +61,17 @@ res.status(500).json({error:"Save failed"});
 
 /* ===== LOAD ALL NOTES ===== */
 
-app.get("/load", async (req,res)=>{
+app.post("/load", async (req,res)=>{
 
 try{
 
-const notes = await Note.find().sort({_id:-1});
-res.json(notes);
+const note = await Note.findOne({ passHash:req.body.passHash });
+
+if(!note){
+return res.json({error:"Not found"});
+}
+
+res.json(note);
 
 }catch(err){
 
