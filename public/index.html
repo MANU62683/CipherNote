@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CipherNote</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<canvas id="matrix"></canvas>
+<div class="panel">
+    <h1 class="title">▀▄▀𝓒𝓲𝓹𝓱𝓮𝓻𝓝𝓸𝓽𝓮▀▄▀</h1>
+    <div class="form-container">
+        <div class="input-container">
+        <input type="password" id="password" required>
+        <label>Password</label>
+        </div>
+        <div class="input-container">
+        <textarea id="note" placeholder=" " required></textarea>
+        <label>Write your secret note...</label>
+        </div>
+    </div>
+    <div class="buttons">
+        <button onclick="saveNote()">Lock</button>
+        <button onclick="loadNote()">Unlock</button>
+    </div>
+</div>
+
+<script src="matrix.js"></script>
+<script src="crypto.js"></script>
+
+</body>
+</html>
