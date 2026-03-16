@@ -1,6 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+
 
 const app = express();
 
@@ -12,7 +14,7 @@ app.use(express.static("public"));
 
 /* ===== DATABASE CONNECTION ===== */
 
-mongoose.connect("mongodb://127.0.0.1:27017/ciphernote")
+mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("MongoDB connected"))
 .catch(err=>console.log("MongoDB error:",err));
 
@@ -92,8 +94,8 @@ res.status(500).json({error:"Load failed"});
 
 /* ===== START SERVER ===== */
 
-app.listen(3000,()=>{
+const PORT = process.env.PORT || 3000;
 
-console.log("Server running at http://localhost:3000");
-
+app.listen(PORT,()=>{
+console.log("Server running");
 });
