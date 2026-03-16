@@ -163,21 +163,19 @@ const passHash = await hashPassword(password);
 
 /* get notes */
 
-const res=await fetch("https://ciphernote.onrender.com/load",{
+const res = await fetch("https://ciphernote.onrender.com/load",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({passHash})
+headers:{ "Content-Type":"application/json" },
+body: JSON.stringify({ passHash })
 });
-const notes=await res.json();
 
-/* find matching note */
+const note = await res.json();
 
-const note = notes.find(n => n.passHash === passHash);
-
-if(!note){
-alert("No note found for this password ❌");
+if(note.error){
+alert("No note found ❌");
 return;
-}
+};
+const notes=await res.json();
 
 /* decrypt */
 
