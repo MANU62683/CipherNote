@@ -28,11 +28,28 @@ false,
 }
 
 
+/* ===== PASSWORD HASH ===== */
+
+async function hashPassword(password){
+
+const enc = new TextEncoder();
+const data = enc.encode(password);
+
+const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+return Array.from(new Uint8Array(hashBuffer))
+.map(b => b.toString(16).padStart(2,"0"))
+.join("");
+
+}
+
+
 /* ===== ENCRYPT NOTE ===== */
 
 async function encrypt(text,password){
 
 const iv = crypto.getRandomValues(new Uint8Array(12));
+
 const key = await getKey(password);
 
 const encrypted = await crypto.subtle.encrypt(
@@ -41,7 +58,7 @@ key,
 new TextEncoder().encode(text)
 );
 
-return{
+return {
 iv:Array.from(iv),
 data:Array.from(new Uint8Array(encrypted))
 };
@@ -81,25 +98,39 @@ alert("Enter password and note");
 return;
 }
 
+/* encrypt note */
+
 const encrypted = await encrypt(note,password);
+
+/* create password hash */
+
+const passHash = await hashPassword(password);
 
 const now = new Date();
 
 const payload = {
 data: encrypted,
 date: now.toLocaleDateString(),
-time: now.toLocaleTimeString()
+time: now.toLocaleTimeString(),
+passHash: passHash
 };
 
-/* save to server */
+try{
 
-await fetch("/save",{
+const res = await fetch("/save",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
 body: JSON.stringify(payload)
 });
+
+const result = await res.json();
+
+if(result.error){
+alert("Password already used ❌");
+return;
+}
 
 alert("Note locked 🔐");
 
@@ -111,6 +142,12 @@ passwordField.value="";
 /* allow new note */
 
 noteField.readOnly=false;
+
+}catch(err){
+
+alert("Save failed ❌");
+
+}
 
 }
 
@@ -128,40 +165,36 @@ return;
 
 try{
 
-const res=await fetch("/load");
-const notes=await res.json();
+/* hash password */
 
-let unlockedText=null;
+const passHash = await hashPassword(password);
 
-/* try decrypting every note */
+/* get all notes */
 
-for(let note of notes){
+const res = await fetch("/load");
 
-try{
+const notes = await res.json();
 
-const text=await decrypt(note.data,password);
+/* find matching note */
 
-unlockedText=text;
-break;
+const note = notes.find(n => n.passHash === passHash);
 
-}catch{
-
-}
-
-}
-
-if(!unlockedText){
+if(!note){
 alert("No note found for this password ❌");
 return;
 }
 
+/* decrypt */
+
+const text = await decrypt(note.data,password);
+
 const noteField=document.getElementById("note");
 
-/* show note */
+/* display note */
 
-noteField.value=unlockedText;
+noteField.value=text;
 
-/* prevent editing */
+/* disable editing */
 
 noteField.readOnly=true;
 
@@ -175,7 +208,7 @@ noteField.select();
 
 }catch{
 
-alert("Unlock failed");
+alert("Unlock failed ❌");
 
 }
 
@@ -184,9 +217,11 @@ alert("Unlock failed");
 
 /* ===== PAGE LOAD ===== */
 
-window.onload=()=>{
+window.onload = ()=>{
 
 const noteField=document.getElementById("note");
+
+/* allow writing new note */
 
 noteField.readOnly=false;
 
