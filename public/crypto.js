@@ -116,7 +116,7 @@ passHash: passHash
 
 /* send to server */
 
-const res = await fetch("/save",{
+const res = await fetch("https://ciphernote.onrender.com/save",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -163,7 +163,7 @@ const passHash = await hashPassword(password);
 
 /* get notes */
 
-const res=await fetch("/load");
+const res=await fetch("https://ciphernote.onrender.com/load");
 const notes=await res.json();
 
 /* find matching note */
