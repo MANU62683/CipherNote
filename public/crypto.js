@@ -116,7 +116,7 @@ passHash: passHash
 
 /* send to server */
 
-const res = await fetch("https://ciphernote.onrender.com/save",{
+const res = await fetch("/save",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -163,7 +163,7 @@ const passHash = await hashPassword(password);
 
 /* get notes */
 
-const res = await fetch("https://ciphernote.onrender.com/load",{
+const res = await fetch("/load",{
 method:"POST",
 headers:{ "Content-Type":"application/json" },
 body: JSON.stringify({ passHash })
