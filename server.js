@@ -12,7 +12,10 @@ app.use(express.static("public"));
 
 /* ===== DATABASE CONNECTION ===== */
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI,{
+useNewUrlParser:true,
+useUnifiedTopology:true
+})
 .then(()=>console.log("MongoDB connected"))
 .catch(err=>console.log("MongoDB error:",err));
 
@@ -83,7 +86,7 @@ res.status(500).json({error:"Load failed"});
 
 /* ===== START SERVER ===== */
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.listen(PORT,()=>{
 console.log("Server running on port",PORT);
