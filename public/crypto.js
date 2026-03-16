@@ -28,22 +28,6 @@ false,
 }
 
 
-/* ===== PASSWORD HASHING ===== */
-
-async function hashPassword(password){
-
-const enc = new TextEncoder();
-const data = enc.encode(password);
-
-const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-
-return Array.from(new Uint8Array(hashBuffer))
-.map(b => b.toString(16).padStart(2,"0"))
-.join("");
-
-}
-
-
 /* ===== ENCRYPT NOTE ===== */
 
 async function encrypt(text,password){
@@ -97,26 +81,19 @@ alert("Enter password and note");
 return;
 }
 
-/* encrypt note */
-
 const encrypted = await encrypt(note,password);
-
-/* hash password */
-
-const passHash = await hashPassword(password);
 
 const now = new Date();
 
 const payload = {
 data: encrypted,
 date: now.toLocaleDateString(),
-time: now.toLocaleTimeString(),
-passHash: passHash
+time: now.toLocaleTimeString()
 };
 
-/* send to server */
+/* save to server */
 
-const res = await fetch("/save",{
+await fetch("/save",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -124,21 +101,15 @@ headers:{
 body: JSON.stringify(payload)
 });
 
-const result = await res.json();
-
-/* duplicate password check */
-
-if(result.error){
-alert("Password already used ❌");
-return;
-}
-
 alert("Note locked 🔐");
 
 /* clear fields */
 
 noteField.value="";
 passwordField.value="";
+
+/* allow new note */
+
 noteField.readOnly=false;
 
 }
@@ -157,35 +128,38 @@ return;
 
 try{
 
-/* hash entered password */
-
-const passHash = await hashPassword(password);
-
-/* get notes */
-
-const res = await fetch("/load",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body: JSON.stringify({ passHash })
-});
-
-const note = await res.json();
-
-if(note.error){
-alert("No note found ❌");
-return;
-};
+const res=await fetch("/load");
 const notes=await res.json();
 
-/* decrypt */
+let unlockedText=null;
 
-const text = await decrypt(note.data,password);
+/* try decrypting every note */
+
+for(let note of notes){
+
+try{
+
+const text=await decrypt(note.data,password);
+
+unlockedText=text;
+break;
+
+}catch{
+
+}
+
+}
+
+if(!unlockedText){
+alert("No note found for this password ❌");
+return;
+}
 
 const noteField=document.getElementById("note");
 
 /* show note */
 
-noteField.value=text;
+noteField.value=unlockedText;
 
 /* prevent editing */
 
@@ -201,7 +175,7 @@ noteField.select();
 
 }catch{
 
-alert("Unlock failed ❌");
+alert("Unlock failed");
 
 }
 
