@@ -1,21 +1,32 @@
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
-canvas.height = window.innerHeight;
-canvas.width = window.innerWidth;
+/* responsive canvas */
+function resizeCanvas(){
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 /* matrix characters */
 const letters = "アカサタナハマヤラワ01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const chars = letters.split("");
 
 const fontSize = 14;
-const columns = Math.floor(canvas.width / fontSize);
+let columns = Math.floor(canvas.width / fontSize);
 
 /* rain drops */
-const drops = [];
-for(let i = 0; i < columns; i++){
-    drops[i] = Math.random() * canvas.height;
+let drops = [];
+function initDrops(){
+    columns = Math.floor(canvas.width / fontSize);
+    drops = [];
+    for(let i = 0; i < columns; i++){
+        drops[i] = Math.random() * canvas.height;
+    }
 }
+initDrops();
+window.addEventListener("resize", initDrops);
 
 /* signature */
 let showSignature = false;
@@ -26,12 +37,11 @@ const message = "MADE BY MANU♥";
 const msgArray = message.split("");
 
 /* center horizontally */
-const startX = Math.floor(columns / 2 - msgArray.length / 2);
+function getStartX(){
+    return Math.floor(columns / 2 - msgArray.length / 2);
+}
 
-/* bottom position */
-const startY = Math.floor(canvas.height / fontSize) - 3;
-
-/* trigger from outside (unlock) */
+/* trigger from unlock */
 function triggerSignature(){
     showSignature = true;
 }
@@ -39,7 +49,7 @@ function triggerSignature(){
 /* main draw */
 function draw(){
 
-    /* fade effect */
+    /* fade trail */
     ctx.fillStyle = "rgba(0,0,0,0.08)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
@@ -53,42 +63,55 @@ function draw(){
 
         ctx.fillText(text, i*fontSize, drops[i]*fontSize);
 
-        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975){
+        if(drops[i]*fontSize > canvas.height && Math.random() > 0.9){
             drops[i] = 0;
         }
 
         drops[i]++;
     }
 
-    /* signature display */
+    /* signature */
     if(showSignature){
 
-        /* smooth fade-in */
-        if(opacity < 1){
-            opacity += 0.02;
+        const panel = document.querySelector(".panel");
+
+        if(panel){
+
+            const rect = panel.getBoundingClientRect();
+
+            /* position just below panel */
+            const startY = Math.floor((rect.bottom + 10) / fontSize);
+            const startX = getStartX();
+
+            /* fade in */
+            if(opacity < 1){
+                opacity += 0.02;
+            }
+
+            ctx.globalAlpha = opacity;
+
+            /* glow pulse */
+            glowPulse += 0.05;
+            ctx.shadowColor = "#00ff00";
+            ctx.shadowBlur = 10 + Math.sin(glowPulse) * 5;
+
+            for(let i = 0; i < msgArray.length; i++){
+                ctx.fillStyle = "#00ff00";
+                ctx.fillText(
+                    msgArray[i],
+                    (startX + i) * fontSize,
+                    startY * fontSize
+                );
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
         }
-
-        ctx.globalAlpha = opacity;
-
-        
-
-        for(let i = 0; i < msgArray.length; i++){
-            ctx.fillStyle = "#00ff00";
-            ctx.fillText(
-                msgArray[i],
-                (startX + i) * fontSize,
-                startY * fontSize
-            );
-        }
-
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
     }
-
 }
 
-/* animation loop */
+/* loop */
 setInterval(draw, 50);
 
-/* make function global (important) */
+/* make global */
 window.triggerSignature = triggerSignature;

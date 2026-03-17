@@ -252,7 +252,7 @@ noteField.readOnly = false;
 copyBtn.style.display = "none";
 
 /* reset button icon */
-copyBtn.innerText = "🗇";
+copyBtn.innerText = "📋";
 
 /* clear password field */
 document.getElementById("password").value = "";
