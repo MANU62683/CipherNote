@@ -14,7 +14,7 @@ app.use(express.static("public"));
 
 /* ===== DATABASE CONNECTION ===== */
 
-mongoose.connect("mongodb://localhost:27017/ciphernote")
+mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("MongoDB connected"))
 .catch(err=>console.log("MongoDB error:",err));
 
