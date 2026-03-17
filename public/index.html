@@ -10,6 +10,7 @@
 
 <body>
 <canvas id="matrix"></canvas>
+
 <div class="panel">
     <h1 class="title">▀▄▀𝓒𝓲𝓹𝓱𝓮𝓻𝓝𝓸𝓽𝓮▀▄▀</h1>
     <div class="form-container">
@@ -20,6 +21,7 @@
         <div class="input-container">
         <textarea id="note" placeholder=" " required></textarea>
         <label>Write your secret note...</label>
+        <button id="copyBtn" onclick="copyNote()">🗇</button>
         </div>
     </div>
     <div class="buttons">
@@ -27,7 +29,6 @@
         <button onclick="loadNote()">Unlock</button>
     </div>
 </div>
-
 <script src="matrix.js"></script>
 <script src="crypto.js"></script>
 

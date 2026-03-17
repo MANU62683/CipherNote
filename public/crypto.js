@@ -148,6 +148,7 @@ noteField.readOnly=false;
 alert("Save failed ❌");
 
 }
+document.getElementById("copyBtn").style.display = "none";/* hide copy button */
 
 }
 
@@ -189,6 +190,7 @@ return;
 const text = await decrypt(note.data,password);
 
 const noteField=document.getElementById("note");
+document.getElementById("copyBtn").style.display = "block";/* show copy button */
 
 /* display note */
 
@@ -197,14 +199,11 @@ noteField.value=text;
 /* disable editing */
 
 noteField.readOnly=true;
-
+triggerSignature();/* trigger matrix signature */
 /* auto focus */
 
 noteField.focus();
 
-/* auto select */
-
-noteField.select();
 
 }catch{
 
@@ -220,9 +219,79 @@ alert("Unlock failed ❌");
 window.onload = ()=>{
 
 const noteField=document.getElementById("note");
-
+document.getElementById("password").addEventListener("focus", resetUI); /* reset UI when password field is focused */
 /* allow writing new note */
 
 noteField.readOnly=false;
 
 };
+
+/***** COPY NOTE TO CLIPBOARD *****/
+function copyNote(){
+
+const noteField = document.getElementById("note");
+const copyBtn = document.getElementById("copyBtn");
+
+/* copy text */
+navigator.clipboard.writeText(noteField.value)
+.then(()=>{
+
+/* optional feedback */
+copyBtn.innerText = "✔";
+
+/* reset after short delay */
+setTimeout(()=>{
+
+/* clear note */
+noteField.value = "";
+
+/* enable editing */
+noteField.readOnly = false;
+
+/* hide copy button */
+copyBtn.style.display = "none";
+
+/* reset button icon */
+copyBtn.innerText = "🗇";
+
+/* clear password field */
+document.getElementById("password").value = "";
+
+/* focus for new input */
+noteField.focus();
+
+}, 800);
+
+})
+.catch(()=>{
+alert("Copy failed ❌");
+});
+
+}
+
+/* ===== RESET UI ===== */
+function resetUI(){
+
+const noteField = document.getElementById("note");
+const passwordField = document.getElementById("password");
+const copyBtn = document.getElementById("copyBtn");
+
+/* only reset if note is currently locked/unlocked */
+if(noteField.readOnly){
+
+/* clear everything */
+noteField.value = "";
+passwordField.value = "";
+
+/* enable editing */
+noteField.readOnly = false;
+
+/* hide copy button */
+copyBtn.style.display = "none";
+
+/* focus note for new input */
+noteField.focus();
+
+}
+
+}
