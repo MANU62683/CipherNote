@@ -80,7 +80,8 @@ function draw(){
             const rect = panel.getBoundingClientRect();
 
             /* position just below panel */
-            const startY = Math.floor((rect.bottom + 10) / fontSize);
+            const safeGap = 30; // 👈 controls distance from panel
+            const startY = Math.floor((rect.bottom + safeGap) / fontSize);
             const startX = getStartX();
 
             /* fade in */
@@ -89,11 +90,6 @@ function draw(){
             }
 
             ctx.globalAlpha = opacity;
-
-            /* glow pulse */
-            glowPulse += 0.05;
-            ctx.shadowColor = "#00ff00";
-            ctx.shadowBlur = 10 + Math.sin(glowPulse) * 5;
 
             for(let i = 0; i < msgArray.length; i++){
                 ctx.fillStyle = "#00ff00";
